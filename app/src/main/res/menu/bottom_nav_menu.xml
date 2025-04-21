@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:title="@string/rus_bott_menu_1"
+        android:icon="@drawable/baseline_attribution_24"
+        android:id="@+id/nav_roulette"/>
+    <item
+        android:title="@string/rus_bott_menu_2"
+        android:icon="@drawable/baseline_add_call_24"
+        android:id="@+id/nav_contacts"/>
+    <item
+        android:title="@string/rus_bott_menu_3"
+        android:icon="@drawable/baseline_admin_panel_settings_24"
+        android:id="@+id/nav_settings"/>
+</menu>

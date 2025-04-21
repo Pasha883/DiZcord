@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "208826175658",
+    "project_id": "dizzzcord",
+    "storage_bucket": "dizzzcord.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:208826175658:android:343fd6523397493f5f80d3",
+        "android_client_info": {
+          "package_name": "com.example.dizzzcord"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAeMR6-0q76_BGr4JBgOoFCpRSkljtCztw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -2,63 +2,56 @@ package com.example.dizzzcord;
 
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.TextView;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link Call#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class Call extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private TextView userNameTextView, callerNameTextView;
+    private FrameLayout localVideoFrame, remoteVideoFrame;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    // Название пользователя и собеседника
+    private String userName;
+    private String callerName;
 
-    public Call() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment Call.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static Call newInstance(String param1, String param2) {
+    // Метод для установки имени пользователя и собеседника
+    public static Call newInstance(String userName, String callerName) {
         Call fragment = new Call();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        args.putString("userName", userName);
+        args.putString("callerName", callerName);
         fragment.setArguments(args);
         return fragment;
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
-
+    @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_call, container, false);
+        View view = inflater.inflate(R.layout.fragment_call, container, false);
+
+        // Получаем имена из аргументов
+        if (getArguments() != null) {
+            userName = getArguments().getString("userName");
+            callerName = getArguments().getString("callerName");
+        }
+
+        // Инициализация элементов UI
+        userNameTextView = view.findViewById(R.id.userName);
+        callerNameTextView = view.findViewById(R.id.callerName);
+        localVideoFrame = view.findViewById(R.id.localVideoFrame);
+        remoteVideoFrame = view.findViewById(R.id.remoteVideoFrame);
+
+        // Устанавливаем имена
+        userNameTextView.setText("Вы (" + userName + ")");
+        callerNameTextView.setText(callerName);
+
+        return view;
     }
 }

@@ -24,13 +24,15 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Contacts extends Fragment {
+public class Contacts extends Fragment implements ContactsAdapter.OnContactClickListener {
 
     private RecyclerView recyclerView;
     private ContactsAdapter adapter;
     private List<Contact> contacts = new ArrayList<>();
-    private DatabaseReference contactsRef;
-    private FirebaseAuth auth;
+    private DatabaseReference contactsRef, nameRef;
+    String currentUserId = "TestUserID"; // Test user ID
+    String usserName = "None";
+
 
     @Nullable
     @Override
@@ -39,64 +41,73 @@ public class Contacts extends Fragment {
         View view = inflater.inflate(R.layout.fragment_contacts, container, false);
         recyclerView = view.findViewById(R.id.contactsRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new ContactsAdapter(contacts);
-        recyclerView.setAdapter(adapter);
 
-        //auth = FirebaseAuth.getInstance();
-        String currentUserId = "TestUserID";
-        contactsRef = FirebaseDatabase.getInstance("https://dizzzcord-default-rtdb.europe-west1.firebasedatabase.app").getReference("users")
-                .child(currentUserId).child("contacts");
+        // Firebase reference setup (user's contacts)
 
-        loadContacts(currentUserId);
-
-        return view;
-    }
-
-    private void loadContacts(String userId) {
-        Log.d("Contacts", "Loading contacts...");
-        DatabaseReference contactsRef = FirebaseDatabase.getInstance("https://dizzzcord-default-rtdb.europe-west1.firebasedatabase.app")
-                .getReference("users")
-                .child(userId)
-                .child("contacts");
-
-        Log.d("FirebaseDebug", "Получаем ссылку на: users/" + userId + "/contacts");
-
-        contactsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        contactsRef = FirebaseDatabase.getInstance("https://dizzzcord-default-rtdb.europe-west1.firebasedatabase.app")
+                .getReference("users").child(currentUserId).child("contacts");
+        nameRef = FirebaseDatabase.getInstance("https://dizzzcord-default-rtdb.europe-west1.firebasedatabase.app")
+                .getReference("users").child(currentUserId).child("name");
+        nameRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Log.d("FirebaseDebug", "Данные успешно получены. Начинаем обработку...");
-
-                contacts.clear();
-                Log.d("FirebaseDebug", "Список контактов очищен");
-
-                for (DataSnapshot mapSnapshot : snapshot.getChildren()) {
-                    Log.d("FirebaseDebug", "Обработка следующего Map из массива contacts");
-
-                    for (DataSnapshot entry : mapSnapshot.getChildren()) {
-                        String contactId = entry.getKey();
-                        String nickname = entry.getValue(String.class);
-
-                        Log.d("FirebaseDebug", "Найдена пара: " + contactId + " -> " + nickname);
-
-                        if (contactId != null && nickname != null) {
-                            contacts.add(new Contact(contactId, nickname));
-                            Log.d("FirebaseDebug", "Контакт добавлен в список: " + contactId + " -> " + nickname);
-                        } else {
-                            Log.w("FirebaseDebug", "Некорректные данные: " + contactId + " -> " + nickname);
-                        }
-                    }
-                }
-
-                adapter.notifyDataSetChanged();
-                Log.d("FirebaseDebug", "Адаптер уведомлен об изменении данных");
+                usserName = snapshot.getValue(String.class);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Log.e("FirebaseDebug", "Ошибка при получении данных: " + error.getMessage());
-                Toast.makeText(getContext(), "Ошибка загрузки контактов", Toast.LENGTH_SHORT).show();
             }
         });
 
+
+        loadContacts();
+
+        return view;
+    }
+
+    private void loadContacts() {
+        contactsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                contacts.clear();
+                for (DataSnapshot contactSnapshot : snapshot.getChildren()) {
+                    String contactId = contactSnapshot.getKey();
+                    String nickname = contactSnapshot.getValue(String.class);
+                    if (contactId != null && nickname != null) {
+                        contacts.add(new Contact(contactId, nickname));
+                    }
+                }
+                adapter = new ContactsAdapter(contacts, Contacts.this);
+                recyclerView.setAdapter(adapter);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("FirebaseDebug", "Ошибка при получении данных: " + error.getMessage());
+            }
+        });
+    }
+
+    @Override
+    public void onCallButtonClick(Contact contact) {
+        // Показываем Toast с ID контакта
+        String message = "Инициализация звонка абоненту с ID: " + contact.id;
+        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+
+        // Передаем имя пользователя и собеседника в CallFragment
+        String userName = usserName; // Здесь используйте реальное имя пользователя
+        String callerName = contact.nickname; // Имя собеседника
+
+        // Создаем новый фрагмент и передаем аргументы
+        Call callFragment = Call.newInstance(userName, callerName);
+
+        // Переходим в CallFragment
+        getActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, callFragment)
+                .addToBackStack(null)  // Это добавит фрагмент в стек для возможности возврата
+                .commit();
     }
 }
+
